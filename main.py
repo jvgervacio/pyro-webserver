@@ -55,7 +55,7 @@ def main():
 
     creds = Credentials(response['idToken'], response['refreshToken'])
     firestore = Client("my-pyro-webapp", creds)
-
+    docRef = firestore.collection("user_data").document(response["localId"])
     try:
         with Serial('COM1', 115200) as port:
             while port.is_open:
@@ -64,18 +64,19 @@ def main():
                     line = port.readline().decode().rstrip()
                     data = json.loads(line)
                     print(data)
-                    triggered, alert_level, flame_sensor, smoke_sensor = data[
-                        "sensor_data"].split(",")
-
-                    firestore.collection("user_data").document(
-                        response["localId"]).set(
+                    triggered, alert_level, flame_sensor, smoke_sensor = [
+                        int(x) for x in data["data"].split(",")
+                    ]
+                    if triggered:
+                        docRef.set({"triggered": bool(triggered)}, merge=True)
+                    docRef.set(
                         {
                             "sensors": {
                                 data["from"]: {
-                                    "triggered": bool(int(triggered)),
-                                    "alert_level": int(alert_level),
-                                    "flame_sensor": bool(int(flame_sensor)),
-                                    "smoke_sensor": int(smoke_sensor)
+                                    "triggered": bool(triggered),
+                                    "alert_level": alert_level,
+                                    "flame_sensor": bool(flame_sensor),
+                                    "smoke_sensor": smoke_sensor
                                 }
                             },
                         },
