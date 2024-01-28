@@ -1,0 +1,9 @@
+{
+    "apiKey": "AIzaSyAe3eITzBRrvrifZa5iuL__pM4KYCwXGSE",
+    "authDomain": "my-pyro-webapp.firebaseapp.com",
+    "databaseURL": "https://my-pyro-webapp-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "projectId": "my-pyro-webapp",
+    "storageBucket": "my-pyro-webapp.appspot.com",
+    "messagingSenderId": "611399052069",
+    "appId": "1:611399052069:web:005acf89834a0ca11c08cc"
+}
