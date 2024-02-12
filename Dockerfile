@@ -7,7 +7,9 @@ WORKDIR /app
 # Copy the requirements file to the working directory
 COPY requirements.txt .
 
-RUN python -m pip install --upgrade pip
+RUN python -m pip install --upgrade pip && \
+    python -m pip install --upgrade setuptools && \
+    python -m pip install --upgrade wheel
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
