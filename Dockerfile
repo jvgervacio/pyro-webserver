@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the requirements file to the working directory
 COPY requirements.txt .
 
+RUN apt-get install -y libgeos-dev rustc build-essential libssl-dev libffi-dev python3-dev cargo pkg-config \
+    && apt-get clean
+
 RUN python -m pip install --upgrade pip && \
     python -m pip install --upgrade setuptools && \
     python -m pip install --upgrade wheel
