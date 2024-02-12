@@ -26,7 +26,6 @@ def load_firebase_config():
     """
     with open('./firebase_config.json', 'r', encoding="utf-8") as f:
         firebase_config = json.load(f)
-        
     return firebase_config
 
 def sign_in(email, password, api_key):
@@ -135,8 +134,9 @@ def run_serial_port(user_id, realtime_db, serial_port, baud_rate):
                                 "status":  get_status_label(int(alert_level)),
                                 "flame_sensor": bool(flame_sensor),
                                 "smoke_sensor": float(smoke_sensor),
+                                "timestamp": time.time(),
                                 "reset": False,
-                    })
+                    });
                 except json.decoder.JSONDecodeError as json_error:
                     print("JSONDecodeError: ", json_error)
                 except UnicodeDecodeError as unicode_error:
