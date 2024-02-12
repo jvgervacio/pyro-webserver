@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy the requirements file to the working directory
 COPY requirements.txt .
-
+RUN sudo apt-get install build-essential libssl-dev libffi-dev python-dev
 RUN python -m pip install --upgrade pip && \
     python -m pip install --upgrade setuptools && \
     python -m pip install --upgrade wheel
