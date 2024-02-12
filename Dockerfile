@@ -9,7 +9,10 @@ COPY requirements.txt .
 
 RUN python -m pip install --upgrade pip
 # Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+
+RUN  ln -sf /usr/share/zoneinfo/Asia/Manila /etc/timezone && \
+     ln -sf /usr/share/zoneinfo/Asia/Manila /etc/localtime && \
+     pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code to the working directory
 COPY . .
