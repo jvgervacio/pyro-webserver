@@ -1,14 +1,11 @@
 # Use the official Python 3.10 image as the base image
-FROM python:3.10-alpine3.19
+FROM python:3.10-slim-bookworm
 
 # Set the working directory inside the container
 WORKDIR /app
 
 # Copy the requirements file to the working directory
 COPY requirements.txt .
-
-RUN apt-get install -y libgeos-dev rustc build-essential libssl-dev libffi-dev python3-dev cargo pkg-config \
-    && apt-get clean
 
 RUN python -m pip install --upgrade pip && \
     python -m pip install --upgrade setuptools && \
