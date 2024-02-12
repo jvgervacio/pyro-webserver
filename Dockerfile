@@ -1,11 +1,11 @@
 # Use the official Python base image for Raspberry Pi
-FROM arm32v7/python:3.10-slim-bookworm
+FROM arm32v7/python:3.10-slim
 
 # Set the working directory inside the container
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get update && apt-get install -y build-essential libssl-dev libffi-dev python3-dev cargo
+RUN apt-get update && apt-get update && apt-get install -y build-essential libssl-dev libffi-dev python3-dev cargo curl gcc libc libc-dev
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
