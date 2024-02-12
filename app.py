@@ -80,14 +80,16 @@ def run_serial_port(user_id, realtime_db, serial_port, baud_rate):
         with Serial(serial_port, baud_rate) as port:
             print("Serial Port Opened")
             def get_status_label(status_level: int):
-                if status_level == 0:
-                    return "IDLE"
-                elif status_level == 1:
-                    return "LOW"
-                elif status_level == 2:
-                    return "MODERATE"
-                else:
-                    return "EXTREME"
+                match status_level:
+                    case 0:
+                        return "IDLE"
+                    case 1:
+                        return "LOW"
+                    case 2:
+                        return "MODERATE"
+                    case _:
+                        return "EXTREME"
+            
             def callback(event):
                 if(event.event_type == "put"):
                     path = event.path.split("/") # ['', '6Ew6I4uY8obQcfVImlxdk4CoPlz2', 'sensors', '3955813598', 'reset']
@@ -97,11 +99,10 @@ def run_serial_port(user_id, realtime_db, serial_port, baud_rate):
                             print(f"Resetting sensor {sensor_id} for user {user_id}")
                             sensors[sensor_id] = False
                             reset_data = {
-                                "sensor_id": sensor_id,
+                                "sensor_id": int(sensor_id),
                             }
                             port.write(str(f"{reset_data}\n").encode())
-                            
-                            
+            
             realtime_db.listen(callback=callback)
             
             while port.is_open:
@@ -110,26 +111,31 @@ def run_serial_port(user_id, realtime_db, serial_port, baud_rate):
                     line = port.readline().decode().rstrip()
                     # Parse the sensor data as JSON
                     data = json.loads(line)
-                    print("Data: ", data)
+                    if "sensor_data" not in data or "from" not in data:
+                        continue
+                    # print("Data: ", data)
                     triggered, alert_level, flame_sensor, smoke_sensor = data["sensor_data"].split(",")
                     sensor_id = str(data['from'])
-                    sensors[sensor_id] = bool(triggered) # Update the sensor data
+                    print(f"Sensor ID: {sensor_id}, Triggered: {bool(int(triggered))}, Alert Level: {alert_level}, Flame Sensor: {flame_sensor}, Smoke Sensor: {smoke_sensor}")
+                    sensors[sensor_id] = bool(int(triggered)) # Update the sensor data
                     total_triggered = sum(sensors.values()) # Get the total number of triggered sensors
+                    # print(f"Sensors: {sensors}")
                     # Update the real-time database with the sensor data
                     realtime_db.child(user_id).update({
-                        sensor_id: {
+                        "total_sensors": len(sensors),
+                        "total_triggered": int(total_triggered),
+                        "timestamp": time.time(),
+                        "reset": False,
+                        "status": get_status_label(int(total_triggered))
+                    })
+                    
+                    realtime_db.child(user_id).child("sensors").child(sensor_id).update({
                                 "triggered": bool(triggered),
                                 "alert_level": int(alert_level),
                                 "status":  get_status_label(int(alert_level)),
                                 "flame_sensor": bool(flame_sensor),
                                 "smoke_sensor": float(smoke_sensor),
                                 "reset": False,
-                        },
-                        "total_sensors": len(sensors),
-                        "total_triggered": int(total_triggered),
-                        "timestamp": time.time(),
-                        "reset": False,
-                        "status": get_status_label(int(total_triggered))
                     })
                 except json.decoder.JSONDecodeError as json_error:
                     print("JSONDecodeError: ", json_error)
@@ -137,6 +143,8 @@ def run_serial_port(user_id, realtime_db, serial_port, baud_rate):
                     print("UnicodeDecodeError: ", unicode_error)
                 except ValueError as value_error:
                     print("ValueError: ", value_error)
+                except TypeError as type_error:
+                    print("TypeError: ", type_error)
                 except KeyboardInterrupt:
                     port.close()
                     print("Exiting...")
@@ -178,10 +186,12 @@ def main():
         rt = db.reference() # Get the reference to the root of the Realtime Database
         # Get the serial port and baud rate from the .env file
         serial_port = os.getenv("SERIAL_PORT")
-        baud_rate = int(os.getenv("BAUD_RATE"))
+        # baud_rate = int(os.getenv("BAUD_RATE") or 9600)
+        baud_rate = 115200
         print(f"Serial Port: {serial_port}")
         print(f"Baud Rate: {baud_rate}")     
         # Run the serial port communication
         run_serial_port(user_id, rt, serial_port, baud_rate)
+        
 if __name__ == "__main__":
     main()
