@@ -109,6 +109,7 @@ def run_serial_port(user_id, realtime_db, serial_port, baud_rate):
                     # Read the sensor data from the serial port
                     line = port.readline().decode().rstrip()
                     # Parse the sensor data as JSON
+                    print("Serial: ", line)
                     data = json.loads(line)
                     if "sensor_data" not in data or "from" not in data:
                         continue
@@ -186,8 +187,7 @@ def main():
         rt = db.reference() # Get the reference to the root of the Realtime Database
         # Get the serial port and baud rate from the .env file
         serial_port = os.getenv("SERIAL_PORT")
-        # baud_rate = int(os.getenv("BAUD_RATE") or 9600)
-        baud_rate = 115200
+        baud_rate = int(os.getenv("BAUD_RATE") or 9600)
         print(f"Serial Port: {serial_port}")
         print(f"Baud Rate: {baud_rate}")     
         # Run the serial port communication

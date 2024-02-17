@@ -19,4 +19,4 @@ fi
 pip install -r requirements.txt
 
 # Run the application
-python app.py
+sudo python app.py
