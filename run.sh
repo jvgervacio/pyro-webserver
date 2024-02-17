@@ -16,7 +16,7 @@ if ! command -v pip >/dev/null; then
 fi
 
 #  install requirements if not already installed headless
-pip install -r requirements.txt
+pip install --no-cache-dir -r requirements.txt
 
 # Run the application
 sudo python app.py
