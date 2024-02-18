@@ -19,4 +19,4 @@ fi
 pip install --no-cache-dir -r requirements.txt
 
 # Run the application
-sudo python app.py
+python app.py
