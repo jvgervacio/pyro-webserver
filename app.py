@@ -92,10 +92,18 @@ def run_serial_port(user_id, realtime_db, serial_port, baud_rate):
             def callback(event):
                 if(event.event_type == "put"):
                     path = event.path.split("/") # ['', '6Ew6I4uY8obQcfVImlxdk4CoPlz2', 'sensors', '3955813598', 'reset']
-                    if len(path) > 3:
+                    if path[1] == user_id and path[2] == "sensors":
                         sensor_id = path[3]
                         if path[4] == "reset" and bool(event.data):
                             print(f"Resetting sensor {sensor_id} for user {user_id}")
+                            sensors[sensor_id] = False
+                            reset_data = {
+                                "sensor_id": int(sensor_id),
+                            }
+                            port.write(str(f"{reset_data}\n").encode())
+                    elif path[1] == user_id and path[2] == "reset" and bool(event.data):
+                        print(f"Resetting all sensors for user {user_id}")
+                        for sensor_id in sensors:
                             sensors[sensor_id] = False
                             reset_data = {
                                 "sensor_id": int(sensor_id),
